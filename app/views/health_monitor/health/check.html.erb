@@ -62,7 +62,7 @@
   <div class="container">
     <div class="statuses">
       <h1>Status Page</h1>
-      <% @statuses[:results].each do |status| %>
+      <% @statuses[:checks].each do |status| %>
       <div class="status status-<%= status[:status].downcase %>">
         <div class="status-heading">
           <span class="name"><%= status[:name]  %></span>

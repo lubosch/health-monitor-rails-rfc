@@ -1,5 +1,5 @@
 # Custom config for RuboCop static code analysis
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
   Exclude:
     - 'spec/**/*'
@@ -25,19 +25,19 @@ Style/SignalException:
 Style/RaiseArgs:
   Enabled: false
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
 
-Layout/AlignHash:
+Layout/HashAlignment:
   Enabled: false
 
-Layout/AlignArray:
+Layout/ArrayAlignment:
   Enabled: false
 
 Layout/MultilineOperationIndentation:
   EnforcedStyle: indented
 
-Layout/IndentFirstHashElement:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
 Style/Documentation:

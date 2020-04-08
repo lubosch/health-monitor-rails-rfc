@@ -6,6 +6,8 @@ module HealthMonitor
       attr_reader :request
       attr_accessor :configuration
 
+      COMPONENT_TYPES = %i[system datastore component]
+
       def self.provider_name
         @provider_name ||= name.demodulize
       end
@@ -20,7 +22,7 @@ module HealthMonitor
 
       def initialize(request: nil)
         @request = request
-
+        @details = details
         return unless self.class.configurable?
 
         self.configuration = self.class.instance_variable_get('@global_configuration')
@@ -36,7 +38,39 @@ module HealthMonitor
       end
 
       # @abstract
-      def self.configuration_class; end
+      def self.configuration_class;
+      end
+
+
+      def details
+        {
+          status: HealthMonitor::STATUSES[:ok],
+          componentId: component_id,
+          componentType: component_type,
+          #   observedValue: 250,
+          #   observedUnit: :ms,
+          #   affectedEndpoints: [
+          #     '/test/users/{userId}',
+          #     '/test2/{customerId}/status',
+          #     '/test3/shopping/{anything}'
+          #   ],
+          #   links: {
+          #     self => 'http://api.example.com/dbnode/dfd6cf2b/health',
+          #     'http://key' => 'http://value'
+          #   },
+          #   time: Time.now.to_s(:iso8601)
+        }
+      end
+
+      def component_id
+        # is a unique identifier of an instance of a specific sub-component/dependency of a service
+      end
+
+      def component_type
+        # SHOULD be present if componentName is present. pre-defined values include: component, datastore, system
+        :system
+      end
+
     end
   end
 end
