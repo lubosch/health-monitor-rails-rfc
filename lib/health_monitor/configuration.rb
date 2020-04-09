@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'health_monitor/models/component'
+
 module HealthMonitor
   class Configuration
+
     PROVIDERS = %i[cache database delayed_job redis resque sidekiq].freeze
 
     attr_accessor :error_callback, :basic_auth_credentials, :environment_variables

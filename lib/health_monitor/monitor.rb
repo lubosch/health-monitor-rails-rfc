@@ -31,7 +31,6 @@ module HealthMonitor
 
   def check(request: nil, params: {})
     @results = checks(request, params)
-
     {
       httpResponse: http_response,
       status: status,
@@ -39,14 +38,14 @@ module HealthMonitor
       version: HealthMonitor::API_VERSION,
       releaseId: HealthMonitor::VERSION,
       description: 'Service to monitor the current health state of the application and its core components',
-      notes: [],
+      notes: nil,
       links: {
         'http://api.x.io/rel/thresholds7' => "http://api.x.io/rel/thresholds7",
         :self => "http://api.x.io/rel/thresholds2"
       },
-      output: '', # should only be here if NOT PASS
+      output: nil, # should only be here if NOT PASS
       checks: @results
-    }
+    }.compact
   end
 
   private
@@ -56,14 +55,13 @@ module HealthMonitor
     if params[:providers].present?
       providers = providers.select { |provider| params[:providers].include?(provider.provider_name.downcase) }
     end
+
     all = []
     providers.each do |provider|
       all += [provider_result(provider, request)].flatten
     end
 
-    all.map do |provider|
-      provider.flatten
-    end.collect.to_h
+    all.map(&:flatten).collect.to_h
   end
 
   def http_response

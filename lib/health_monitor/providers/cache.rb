@@ -16,13 +16,15 @@ module HealthMonitor
           Rails.cache.write(key, time)
           fetched = Rails.cache.read(key)
 
-          raise "different values (now: #{time}, fetched: #{fetched})" if fetched != time
+          if fetched != time
+            @component2.observed_value = :false
+            @component2.output = "different values (now: #{time}, fetched: #{fetched})"
+          end
+
         rescue Exception => e
           # raise CacheException.new(e.message)
-          @details.merge!({
-            status: STATUTES[:error],
-            output: e.message
-          })
+          @component.status = HealthMonitor::STATUTES[:error]
+          @component.output = e.message
         end
 
         result
@@ -35,15 +37,21 @@ module HealthMonitor
       end
 
       def add_details
-        @details.merge!({
-          componentType: :datastore,
-          time: Time.now.to_s(:iso8601),
-        })
+        @component.component_type = :datastore
+        @component.component_id = Rails.cache.object_id
+        @component.measurement_name = 'status'
+        @component2 = @component.dup
+        @component2.measurement_name = 'persistence'
+        @component2.observed_unit = :boolean
+        @component2.observed_value = :true
       end
 
-      def result
-        { self.class.provider_name => [@details] }
-      end
+       def result
+         [
+           super,
+           { "#{self.class.provider_name}:#{@component2.measurement_name}"=> [@component2.result] }
+         ]
+       end
     end
   end
 end

@@ -16,40 +16,36 @@ module HealthMonitor
           ActiveRecord::Migrator.current_version
         rescue Exception => e
           # raise DatabaseException.new(e.message)
-          @details.merge!({
-            status: STATUTES[:error],
-            output: e.message
-          })
+          @component.status = HealthMonitor::STATUTES[:error]
+          @component.output = e.message
         end
         result
       end
 
       def add_details
-        @details.merge!({
-          componentType: :datastore,
-          time: Time.now.to_s(:iso8601),
-          observedValue: 250,
-          observedUnit: :ms,
-          affectedEndpoints: [
-            '/test/users/{userId}',
-            '/test2/{customerId}/status',
-            '/test3/shopping/{anything}'
-          ],
-          links: {
-            :self => 'http://api.example.com/dbnode/dfd6cf2b/health',
-            'http://key' => 'http://value'
-          },
+        @component.component_id = ActiveRecord.object_id
+        @component.component_type = :datastore
+        @component.observed_value = 250
+        @component.observed_unit = :ms
+        @component.affected_endpoints = [
+          '/test/users/{userId}',
+          '/test2/{customerId}/status',
+          '/test3/shopping/{anything}'
+        ]
+        @component.links = {
+          :self => 'http://api.example.com/dbnode/dfd6cf2b/health',
+          'http://key' => 'http://value'
+        }
+        @component2 = @component.dup
+        @component2.component_id = '123'
+        @component2.status = HealthMonitor::STATUSES[:error]
 
-        })
-      end
-      def component_id
-        ActiveRecord.object_id
       end
 
       def result
         [
-          { "#{self.class.provider_name}:subComponent" => [@details] },
-          { self.class.provider_name => [@details] }
+          super,
+          { "#{self.class.provider_name}:subComponent" => [@component2.result] },
         ]
       end
     end
