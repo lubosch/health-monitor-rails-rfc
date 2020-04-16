@@ -5,9 +5,6 @@ require 'delayed_job'
 
 module HealthMonitor
   module Providers
-    class DelayedJobException < StandardError;
-    end
-
     class DelayedJob < Base
       class Configuration
         DEFAULT_QUEUES_SIZE = 100
@@ -19,26 +16,21 @@ module HealthMonitor
         end
       end
 
-      def check!
-        add_details
-        begin
-          check_queue_size!
-        rescue Exception => e
-          # raise DelayedJobException.new(e.message)
-          @component.output = e.message
-          @component.status = HealthMonitor::STATUSES[:error]
-        end
-        result
-      end
-
-      private
-
       class << self
         private
 
         def configuration_class
           ::HealthMonitor::Providers::DelayedJob::Configuration
         end
+      end
+
+      private
+
+      def perform_check
+        check_queue_size!
+      rescue Exception => e
+        @component.output = e.message
+        @component.status = HealthMonitor::STATUSES[:error]
       end
 
       def check_queue_size!
@@ -57,9 +49,8 @@ module HealthMonitor
       def add_details
         @component.component_type = :system
         @component.component_id = @job_class.object_id
-        @component.observed_unit = :pcs
+        @component.observed_unit = :items
       end
-
     end
   end
 end

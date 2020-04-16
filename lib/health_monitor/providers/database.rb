@@ -4,27 +4,20 @@ require 'health_monitor/providers/base'
 
 module HealthMonitor
   module Providers
-    class DatabaseException < StandardError;
-    end
-
     class Database < Base
-      def check!
-        add_details
+      private
 
-        begin
-          # Check connection to the DB:
-          ActiveRecord::Migrator.current_version
-        rescue Exception => e
-          # raise DatabaseException.new(e.message)
-          @component.status = HealthMonitor::STATUTES[:error]
-          @component.output = e.message
-        end
-        result
+      def perform_check
+        # Check connection to the DB:
+        ActiveRecord::Migrator.current_version
+      rescue Exception => e
+        @component.status = HealthMonitor::STATUTES[:error]
+        @component.output = e.message
       end
 
       def add_details
         @component.component_id = ActiveRecord.object_id
-        @component.component_type = :datastore
+        @component.component_type = :jozkp
         @component.observed_value = 250
         @component.observed_unit = :ms
         @component.affected_endpoints = [
@@ -39,14 +32,8 @@ module HealthMonitor
         @component2 = @component.dup
         @component2.component_id = '123'
         @component2.status = HealthMonitor::STATUSES[:error]
-
-      end
-
-      def result
-        [
-          super,
-          { "#{self.class.provider_name}:subComponent" => [@component2.result] },
-        ]
+        @component2.measurement_name = 'test'
+        @components.push(@component2)
       end
     end
   end

@@ -40,8 +40,8 @@ module HealthMonitor
       description: 'Service to monitor the current health state of the application and its core components',
       notes: nil,
       links: {
-        'http://api.x.io/rel/thresholds7' => "http://api.x.io/rel/thresholds7",
-        :self => "http://api.x.io/rel/thresholds2"
+        'http://api.x.io/rel/thresholds7' => 'http://api.x.io/rel/thresholds7',
+        :self => 'http://api.x.io/rel/thresholds2'
       },
       output: nil, # should only be here if NOT PASS
       checks: @results
@@ -90,6 +90,13 @@ module HealthMonitor
     monitor = provider.new(request: request)
     monitor.check!
 
+  # rescue ActiveModel::ValidationError => e
+  #   {
+  #     provider.provider_name => [{
+  #       status: STATUSES[:fail],
+  #       output: e.message
+  #     }]
+  #   }
   rescue StandardError => e
     configuration.error_callback.try(:call, e)
     {
@@ -97,7 +104,7 @@ module HealthMonitor
         status: STATUSES[:fail],
         output: e.message
       }]
-    }.flatten
+    }
   end
 end
 

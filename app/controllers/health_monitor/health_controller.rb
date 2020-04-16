@@ -4,7 +4,7 @@ module HealthMonitor
   class HealthController < ActionController::Base
     protect_from_forgery with: :exception
 
-    RESTRICTED_ENV_VARS = %i[status notes output checks]
+    RESTRICTED_ENV_VARS = %i[status notes output checks].freeze
 
     if Rails.version.starts_with? '3'
       before_filter :authenticate_with_basic_auth

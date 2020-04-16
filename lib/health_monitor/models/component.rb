@@ -1,7 +1,12 @@
+# frozen_string_literal: true
+
 module HealthMonitor
   module Models
     class Component
-      COMPONENT_TYPES = %i[system datastore component]
+      include ActiveModel::Validations
+
+      COMPONENT_TYPES = %i[system datastore component].freeze
+      COMPONENT_STATUSES = %w[pass fail warn].freeze
 
       attr_accessor :status
       attr_accessor :component_id
@@ -14,6 +19,13 @@ module HealthMonitor
       attr_accessor :output
       attr_accessor :measurement_name
 
+      validates_presence_of :status
+      validates :status, inclusion: { in: COMPONENT_STATUSES, message: '%<value>s is not a valid status' }
+      validates :component_type, inclusion: { in: COMPONENT_TYPES, message: '%{<value>s is not a valid component type' }
+      validates :output, presence: true, unless: -> { status == 'pass' }
+
+      # validates :links, format: Array
+
       def initialize
         @status = HealthMonitor::STATUSES[:ok]
         @component_type = :system
@@ -22,6 +34,11 @@ module HealthMonitor
       end
 
       def result
+        if invalid?
+          @status = HealthMonitor::STATUSES[:warn]
+          @output = output.to_s + errors.full_messages.to_sentence
+        end
+
         {
           status: status,
           componentId: component_id,
