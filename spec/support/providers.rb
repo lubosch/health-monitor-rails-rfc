@@ -12,7 +12,7 @@ module Providers
   end
 
   def stub_database_failure
-    allow(ActiveRecord::Base.connection).to receive(:execute).and_raise(Exception,'my db exception')
+    allow(ActiveRecord::Base.connection).to receive(:execute).and_raise(Exception, 'my db exception')
   end
 
   def stub_delayed_job

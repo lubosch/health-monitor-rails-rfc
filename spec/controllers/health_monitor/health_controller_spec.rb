@@ -47,7 +47,7 @@ describe HealthMonitor::HealthController, type: :controller do
               'time' => time.to_s(:iso8601)
             )]
           },
-          'status' => 'pass',
+          'status' => 'pass'
         )
       end
 
@@ -75,7 +75,7 @@ describe HealthMonitor::HealthController, type: :controller do
                   'time' => time.to_s(:iso8601)
                 )]
               },
-              'status' => 'pass',
+              'status' => 'pass'
             )
           end
         end
@@ -98,7 +98,6 @@ describe HealthMonitor::HealthController, type: :controller do
         context 'unknown provider' do
           let(:providers) { %w[foo-bar!] }
           it 'returns empty providers' do
-
             expect {
               get :check, params
             }.not_to raise_error
@@ -157,7 +156,6 @@ describe HealthMonitor::HealthController, type: :controller do
           'build_number' => '12',
           'git_sha' => 'example_sha'
         )
-
       end
     end
   end
@@ -253,7 +251,6 @@ describe HealthMonitor::HealthController, type: :controller do
                 'status' => 'fail',
                 'output' => 'my db exception',
                 'time' => time.to_s(:iso8601)
-
               )]
             },
             'status' => 'fail'

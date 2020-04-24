@@ -22,7 +22,7 @@ module HealthMonitor
           render json: @statuses.to_json, status: http_response, content_type: 'application/health+json'
         end
         format.xml do
-          render xml: @statuses.to_xml(root:'result'), status: http_response
+          render xml: @statuses.to_xml(root: 'result'), status: http_response
         end
       end
     end
@@ -49,7 +49,7 @@ module HealthMonitor
     end
 
     def providers_params
-      params.permit(:format, providers:[] )
+      params.permit(:format, providers: [])
     end
   end
 end

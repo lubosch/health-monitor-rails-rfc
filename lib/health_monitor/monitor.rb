@@ -41,8 +41,8 @@ module HealthMonitor
       description: 'Service to monitor the current health state of the application and its core components',
       notes: nil,
       links: {
-        :about => 'http://api.x.io/rel/thresholds7',
-        :self => 'http://api.x.io/rel/thresholds2'
+        about: 'http://api.x.io/rel/thresholds7',
+        self: 'http://api.x.io/rel/thresholds2'
       },
       output: nil, # should only be here if NOT PASS
       checks: @results
@@ -69,14 +69,19 @@ module HealthMonitor
     :ok
   end
 
+  # rubocop:disable Metrics/AbcSize
   def provider_result(provider, request)
     monitor = provider.new(request: request)
     monitor.check!
-    @status = STATUSES[:fail] if monitor.status == STATUSES[:fail]
+    if monitor.status == STATUSES[:fail]
+      @status = STATUSES[:fail]
+      output = monitor.components.map(&:output).join('.')
+      configuration.error_callback.try(:call, StandardError.new(output))
+    end
     @status = STATUSES[:warn] if monitor.status == STATUSES[:warn]
-    monitor.result
 
-   rescue StandardError => e
+    monitor.result
+  rescue StandardError => e
     configuration.error_callback.try(:call, e)
     {
       provider.provider_name => [{
@@ -85,6 +90,7 @@ module HealthMonitor
       }]
     }
   end
+  # rubocop:enable Metrics/AbcSize
 end
 
 HealthMonitor.configure

@@ -31,7 +31,7 @@ describe HealthMonitor::Providers::Redis do
         it 'fails check!' do
           expect(subject.check!).to include(
             'Redis' => [hash_including(
-              status: 'fail',
+              status: 'fail'
             )]
           )
         end

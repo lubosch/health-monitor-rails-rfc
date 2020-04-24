@@ -54,9 +54,11 @@ describe HealthMonitor::Providers::Sidekiq do
         end
 
         it 'fails check!' do
-          expect {
-            subject.check!
-          }.to raise_error(HealthMonitor::Providers::SidekiqException)
+          expect(subject.check!).to include(
+            'Sidekiq' => [hash_including(
+              status: 'fail'
+            )]
+          )
         end
       end
 
@@ -66,9 +68,11 @@ describe HealthMonitor::Providers::Sidekiq do
         end
 
         it 'fails check!' do
-          expect {
-            subject.check!
-          }.to raise_error(HealthMonitor::Providers::SidekiqException)
+          expect(subject.check!).to include(
+            'Sidekiq' => [hash_including(
+              status: 'fail'
+            )]
+          )
         end
       end
 
@@ -80,9 +84,11 @@ describe HealthMonitor::Providers::Sidekiq do
         context 'fails' do
           let(:queue) { 'default' }
           it 'fails check!' do
-            expect {
-              subject.check!
-            }.to raise_error(HealthMonitor::Providers::SidekiqException)
+            expect(subject.check!).to include(
+              'Sidekiq' => [hash_including(
+                status: 'fail'
+              )]
+            )
           end
         end
         context 'on a different queue' do
@@ -101,9 +107,11 @@ describe HealthMonitor::Providers::Sidekiq do
         end
 
         it 'fails check!' do
-          expect {
-            subject.check!
-          }.to raise_error(HealthMonitor::Providers::SidekiqException)
+          expect(subject.check!).to include(
+            'Sidekiq' => [hash_including(
+              status: 'fail'
+            )]
+          )
         end
       end
 
@@ -113,9 +121,11 @@ describe HealthMonitor::Providers::Sidekiq do
         end
 
         it 'fails check!' do
-          expect {
-            subject.check!
-          }.to raise_error(HealthMonitor::Providers::SidekiqException)
+          expect(subject.check!).to include(
+            'Sidekiq' => [hash_including(
+              status: 'fail'
+            )]
+          )
         end
       end
     end

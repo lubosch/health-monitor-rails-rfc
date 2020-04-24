@@ -5,6 +5,7 @@ module HealthMonitor
     class Base
       attr_reader :request
       attr_reader :component
+      attr_reader :components
       attr_reader :result
       attr_accessor :configuration
 
@@ -33,7 +34,7 @@ module HealthMonitor
       def check!
         add_details
         perform_check
-        get_result
+        generate_result
       end
 
       def self.configurable?
@@ -66,7 +67,7 @@ module HealthMonitor
         raise NotImplementedError
       end
 
-      def get_result
+      def generate_result
         @result = @components.map do |component|
           { component_name(component) => [component.result] }
         end
