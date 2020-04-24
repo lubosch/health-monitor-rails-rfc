@@ -5,6 +5,7 @@ module HealthMonitor
     class Base
       attr_reader :request
       attr_reader :component
+      attr_reader :result
       attr_accessor :configuration
 
       def self.provider_name
@@ -32,11 +33,21 @@ module HealthMonitor
       def check!
         add_details
         perform_check
-        result
+        get_result
       end
 
       def self.configurable?
         configuration_class
+      end
+
+      def status
+        check! if result.blank?
+        statuses = @components.map(&:status)
+
+        return HealthMonitor::STATUSES[:fail] if statuses.include?(HealthMonitor::STATUSES[:fail])
+        return HealthMonitor::STATUSES[:warn] if statuses.include?(HealthMonitor::STATUSES[:warn])
+
+        HealthMonitor::STATUSES[:ok]
       end
 
       # @abstract
@@ -55,8 +66,8 @@ module HealthMonitor
         raise NotImplementedError
       end
 
-      def result
-        @components.map do |component|
+      def get_result
+        @result = @components.map do |component|
           { component_name(component) => [component.result] }
         end
       end

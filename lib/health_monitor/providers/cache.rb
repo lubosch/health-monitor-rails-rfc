@@ -13,11 +13,12 @@ module HealthMonitor
         fetched = Rails.cache.read(key)
 
         if fetched != time
+          @component2.status = HealthMonitor::STATUSES[:error]
           @component2.observed_value = false
           @component2.output = "different values (now: #{time}, fetched: #{fetched})"
         end
       rescue Exception => e
-        @component.status = HealthMonitor::STATUTES[:error]
+        @component.status = HealthMonitor::STATUSES[:error]
         @component.output = e.message
       end
 

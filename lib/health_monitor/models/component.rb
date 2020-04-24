@@ -24,8 +24,6 @@ module HealthMonitor
       validates :component_type, inclusion: { in: COMPONENT_TYPES, message: '%{<value>s is not a valid component type' }
       validates :output, presence: true, unless: -> { status == 'pass' }
 
-      # validates :links, format: Array
-
       def initialize
         @status = HealthMonitor::STATUSES[:ok]
         @component_type = :system

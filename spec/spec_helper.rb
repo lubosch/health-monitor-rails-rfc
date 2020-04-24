@@ -55,5 +55,5 @@ end
 
 def parse_xml(response)
   xml = response.body.gsub('type="symbol"', '')
-  Hash.from_xml(xml)['hash']
+  Hash.from_xml(xml)['result']
 end

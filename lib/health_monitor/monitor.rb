@@ -30,17 +30,18 @@ module HealthMonitor
   end
 
   def check(request: nil, params: {})
+    @status = STATUSES[:ok]
     @results = checks(request, params)
     {
       httpResponse: http_response,
-      status: status,
+      status: @status,
       serviceId: HealthMonitor.name, # unique identifier of the service, in the application scope
       version: HealthMonitor::API_VERSION,
       releaseId: HealthMonitor::VERSION,
       description: 'Service to monitor the current health state of the application and its core components',
       notes: nil,
       links: {
-        'http://api.x.io/rel/thresholds7' => 'http://api.x.io/rel/thresholds7',
+        :about => 'http://api.x.io/rel/thresholds7',
         :self => 'http://api.x.io/rel/thresholds2'
       },
       output: nil, # should only be here if NOT PASS
@@ -55,49 +56,27 @@ module HealthMonitor
     if params[:providers].present?
       providers = providers.select { |provider| params[:providers].include?(provider.provider_name.downcase) }
     end
-
     all = []
     providers.each do |provider|
       all += [provider_result(provider, request)].flatten
     end
-
     all.map(&:flatten).collect.to_h
   end
 
   def http_response
-    return :service_unavailable if status == STATUSES[:fail]
+    return :service_unavailable if @status == STATUSES[:fail]
 
     :ok
-  end
-
-  def status
-    return STATUSES[:fail] if @results.each_value do |value|
-      value.any? do |res|
-        res[:status] == STATUSES[:fail]
-      end
-    end
-
-    return STATUSES[:warn] if @results.each_value do |value|
-      value.any? do |res|
-        res[:status] == STATUSES[:warn]
-      end
-    end
-
-    STATUSES[:ok]
   end
 
   def provider_result(provider, request)
     monitor = provider.new(request: request)
     monitor.check!
+    @status = STATUSES[:fail] if monitor.status == STATUSES[:fail]
+    @status = STATUSES[:warn] if monitor.status == STATUSES[:warn]
+    monitor.result
 
-  # rescue ActiveModel::ValidationError => e
-  #   {
-  #     provider.provider_name => [{
-  #       status: STATUSES[:fail],
-  #       output: e.message
-  #     }]
-  #   }
-  rescue StandardError => e
+   rescue StandardError => e
     configuration.error_callback.try(:call, e)
     {
       provider.provider_name => [{

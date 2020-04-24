@@ -11,20 +11,18 @@ describe HealthMonitor::Providers::Database do
 
   describe '#check!' do
     it 'succesfully checks' do
-      expect {
-        subject.check!
-      }.not_to raise_error
+      subject.check!
+      expect(subject.status).to eq('pass')
     end
 
     context 'failing' do
       before do
         Providers.stub_database_failure
+        subject.check!
       end
 
       it 'fails check!' do
-        expect {
-          subject.check!
-        }.to raise_error(HealthMonitor::Providers::DatabaseException)
+        expect(subject.status).to eq('fail')
       end
     end
   end

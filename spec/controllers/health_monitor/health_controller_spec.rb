@@ -40,16 +40,14 @@ describe HealthMonitor::HealthController, type: :controller do
         }.not_to raise_error
 
         expect(response).to be_ok
-        expect(JSON.parse(response.body)).to eq(
-          'results' => [
-            {
-              'name' => 'Database',
-              'message' => '',
-              'status' => 'OK'
-            }
-          ],
-          'status' => 'ok',
-          'timestamp' => time.to_s(:rfc2822)
+        expect(JSON.parse(response.body)).to include(
+          'checks' => {
+            'Database' => [hash_including(
+              'status' => 'pass',
+              'time' => time.to_s(:iso8601)
+            )]
+          },
+          'status' => 'pass',
         )
       end
 
@@ -70,32 +68,29 @@ describe HealthMonitor::HealthController, type: :controller do
             }.not_to raise_error
 
             expect(response).to be_ok
-            expect(JSON.parse(response.body)).to eq(
-              'results' => [
-                {
-                  'name' => 'Database',
-                  'message' => '',
-                  'status' => 'OK'
-                }
-              ],
-              'status' => 'ok',
-              'timestamp' => time.to_s(:rfc2822)
+            expect(JSON.parse(response.body)).to include(
+              'checks' => {
+                'Database' => [hash_including(
+                  'status' => 'pass',
+                  'time' => time.to_s(:iso8601)
+                )]
+              },
+              'status' => 'pass',
             )
           end
         end
 
         context 'single provider' do
           let(:providers) { %w[redis] }
-          it 'returns empty providers' do
+          it 'return empty providers' do
             expect {
               get :check, params
             }.not_to raise_error
 
             expect(response).to be_ok
-            expect(JSON.parse(response.body)).to eq(
-              'results' => [],
-              'status' => 'ok',
-              'timestamp' => time.to_s(:rfc2822)
+            expect(JSON.parse(response.body)).to include(
+              'checks' => {},
+              'status' => 'pass'
             )
           end
         end
@@ -103,21 +98,20 @@ describe HealthMonitor::HealthController, type: :controller do
         context 'unknown provider' do
           let(:providers) { %w[foo-bar!] }
           it 'returns empty providers' do
+
             expect {
               get :check, params
             }.not_to raise_error
 
             expect(response).to be_ok
-            expect(JSON.parse(response.body)).to eq(
-              'results' => [],
-              'status' => 'ok',
-              'timestamp' => time.to_s(:rfc2822)
+            expect(JSON.parse(response.body)).to include(
+              'checks' => {},
+              'status' => 'pass'
             )
           end
         end
       end
     end
-
     context 'invalid credentials provided' do
       before do
         request.env['HTTP_AUTHORIZATION'] =
@@ -136,7 +130,7 @@ describe HealthMonitor::HealthController, type: :controller do
   end
 
   describe 'environment variables' do
-    let(:environment_variables) { { build_number: '12', git_sha: 'example_sha' } }
+    let(:environment_variables) { { build_number: '12', git_sha: 'example_sha', status: 'fake_status' } }
 
     before do
       HealthMonitor.configure do |config|
@@ -146,27 +140,24 @@ describe HealthMonitor::HealthController, type: :controller do
     end
 
     context 'valid environment variables synatx provided' do
-      it 'succesfully checks' do
+      it 'succesfully checks and removes unpermitted env vars' do
         expect {
           get :check, format: :json
         }.not_to raise_error
 
         expect(response).to be_ok
-        expect(JSON.parse(response.body)).to eq(
-          'results' => [
-            {
-              'name' => 'Database',
-              'message' => '',
-              'status' => 'OK'
-            }
-          ],
-          'status' => 'ok',
-          'timestamp' => time.to_s(:rfc2822),
-          'environment_variables' => {
-            'build_number' => '12',
-            'git_sha' => 'example_sha'
-          }
+        expect(JSON.parse(response.body)).to include(
+          'checks' => {
+            'Database' => [hash_including(
+              'status' => 'pass',
+              'time' => time.to_s(:iso8601)
+            )]
+          },
+          'status' => 'pass',
+          'build_number' => '12',
+          'git_sha' => 'example_sha'
         )
+
       end
     end
   end
@@ -186,17 +177,16 @@ describe HealthMonitor::HealthController, type: :controller do
         }.not_to raise_error
 
         expect(response).to be_ok
-        expect(JSON.parse(response.body)).to eq(
-          'results' => [
-            {
-              'name' => 'Database',
-              'message' => '',
-              'status' => 'OK'
-            }
-          ],
-          'status' => 'ok',
-          'timestamp' => time.to_s(:rfc2822)
+        expect(JSON.parse(response.body)).to include(
+          'checks' => {
+            'Database' => [hash_including(
+              'status' => 'pass',
+              'time' => time.to_s(:iso8601)
+            )]
+          },
+          'status' => 'pass'
         )
+        expect(JSON.parse(response.body)).to include('checks' => { 'Database' => [hash_excluding('output')] })
       end
 
       context 'failing' do
@@ -212,16 +202,15 @@ describe HealthMonitor::HealthController, type: :controller do
           expect(response).not_to be_ok
           expect(response.status).to eq(503)
 
-          expect(JSON.parse(response.body)).to eq(
-            'results' => [
-              {
-                'name' => 'Database',
-                'message' => 'Exception',
-                'status' => 'ERROR'
-              }
-            ],
-            'status' => 'service_unavailable',
-            'timestamp' => time.to_s(:rfc2822)
+          expect(JSON.parse(response.body)).to include(
+            'checks' => {
+              'Database' => [hash_including(
+                'status' => 'fail',
+                'time' => time.to_s(:iso8601),
+                'output' => 'my db exception'
+              )]
+            },
+            'status' => 'fail'
           )
         end
       end
@@ -234,17 +223,16 @@ describe HealthMonitor::HealthController, type: :controller do
         }.not_to raise_error
 
         expect(response).to be_ok
-        expect(parse_xml(response)).to eq(
-          'results' => [
-            {
-              'name' => 'Database',
-              'message' => nil,
-              'status' => 'OK'
-            }
-          ],
-          'status' => 'ok',
-          'timestamp' => time.to_s(:rfc2822)
+        expect(parse_xml(response)).to include(
+          'checks' => {
+            'Database' => [hash_including(
+              'status' => 'pass',
+              'time' => time.to_s(:iso8601)
+            )]
+          },
+          'status' => 'pass'
         )
+        expect(parse_xml(response)).to include('checks' => { 'Database' => [hash_excluding('output')] })
       end
 
       context 'failing' do
@@ -259,17 +247,16 @@ describe HealthMonitor::HealthController, type: :controller do
 
           expect(response).not_to be_ok
           expect(response.status).to eq(503)
+          expect(parse_xml(response)).to include(
+            'checks' => {
+              'Database' => [hash_including(
+                'status' => 'fail',
+                'output' => 'my db exception',
+                'time' => time.to_s(:iso8601)
 
-          expect(parse_xml(response)).to eq(
-            'results' => [
-              {
-                'name' => 'Database',
-                'message' => 'Exception',
-                'status' => 'ERROR'
-              }
-            ],
-            'status' => 'service_unavailable',
-            'timestamp' => time.to_s(:rfc2822)
+              )]
+            },
+            'status' => 'fail'
           )
         end
       end
