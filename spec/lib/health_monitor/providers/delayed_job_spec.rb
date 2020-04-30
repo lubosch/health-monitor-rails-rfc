@@ -19,24 +19,22 @@ describe HealthMonitor::Providers::DelayedJob do
     before do
       described_class.configure
       Providers.stub_delayed_job
+      subject.check!
     end
 
     it 'succesfully checks' do
-      expect {
-        subject.check!
-      }.not_to raise_error
+      expect(subject.status).to eq('pass')
     end
 
     context 'failing' do
       context 'queue_size' do
         before do
           Providers.stub_delayed_job_queue_size_failure
+          subject.check!
         end
 
         it 'fails check!' do
-          expect {
-            subject.check!
-          }.to raise_error(HealthMonitor::Providers::DelayedJobException)
+          expect(subject.status).to eq('fail')
         end
       end
     end

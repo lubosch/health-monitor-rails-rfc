@@ -29,9 +29,11 @@ describe HealthMonitor::Providers::Redis do
         end
 
         it 'fails check!' do
-          expect {
-            subject.check!
-          }.to raise_error(HealthMonitor::Providers::RedisException)
+          expect(subject.check!).to include(
+            'Redis' => [hash_including(
+              status: 'fail'
+            )]
+          )
         end
       end
     end
@@ -53,9 +55,12 @@ describe HealthMonitor::Providers::Redis do
         end
 
         it 'fails check!' do
-          expect {
-            subject.check!
-          }.to raise_error(HealthMonitor::Providers::RedisException, '954Mb memory using is higher than 100Mb maximum expected')
+          expect(subject.check!).to include(
+            'Redis' => [hash_including(
+              status: 'fail',
+              output: '954Mb memory using is higher than 100Mb maximum expected'
+            )]
+          )
         end
       end
     end

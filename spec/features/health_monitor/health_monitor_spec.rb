@@ -7,7 +7,7 @@ describe 'Health Monitor' do
     it 'renders html' do
       visit '/check'
       expect(page).to have_css('span', class: 'name', text: 'Database')
-      expect(page).to have_css('span', class: 'state', text: 'OK')
+      expect(page).to have_css('span', class: 'state', text: 'pass')
     end
   end
 
@@ -18,8 +18,8 @@ describe 'Health Monitor' do
     it 'renders html' do
       visit '/check'
       expect(page).to have_css('span', class: 'name', text: 'Database')
-      expect(page).to have_css('span', class: 'state', text: 'ERROR')
-      expect(page).to have_css('div', class: 'message', text: 'Exception')
+      expect(page).to have_css('span', class: 'state', text: 'fail')
+      expect(page).to have_css('div', class: 'message', text: 'my db exception')
     end
   end
 end

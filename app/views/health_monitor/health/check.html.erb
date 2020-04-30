@@ -51,7 +51,8 @@
   .statuses .state { font-size: 14px; float: right; width: 80px; color: #45b81d; }
   .statuses .message { color: #666; }
   .statuses .timestamp { width: 130px; color: #999; }
-  .statuses .status-error .state { color: red; }
+  .statuses .status-fail .state { color: red; }
+  .statuses .status-warn .state { color: orange }
 
   .powered { text-align: center; margin-top: 10px; color: #aaa; }
   .powered a { color: #666; }
@@ -62,13 +63,14 @@
   <div class="container">
     <div class="statuses">
       <h1>Status Page</h1>
-      <% @statuses[:results].each do |status| %>
-      <div class="status status-<%= status[:status].downcase %>">
+
+      <% @statuses[:checks].each do |i,status| %>
+      <div class="status status-<%= status.first[:status].downcase %>">
         <div class="status-heading">
-          <span class="name"><%= status[:name]  %></span>
-          <span class="state"><%= status[:status] %></span>
+          <span class="name"><%= i  %></span>
+          <span class="state"><%= status.first[:status] %></span>
         </div>
-        <div class="message"><%= status[:message] %></div>
+        <div class="message"><%= status.first[:output] %></div>
       </div>
       <% end %>
     </div>

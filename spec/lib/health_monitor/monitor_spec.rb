@@ -43,7 +43,7 @@ describe HealthMonitor do
           end
         }.to change { HealthMonitor.configuration.providers }
           .to(Set.new([HealthMonitor::Providers::Database, HealthMonitor::Providers::Redis,
-            HealthMonitor::Providers::Sidekiq]))
+                 HealthMonitor::Providers::Sidekiq]))
       end
 
       it 'configures multiple providers with custom configuration' do
@@ -56,7 +56,7 @@ describe HealthMonitor do
           end
         }.to change { HealthMonitor.configuration.providers }
           .to(Set.new([HealthMonitor::Providers::Database, HealthMonitor::Providers::Redis,
-            HealthMonitor::Providers::Sidekiq]))
+                 HealthMonitor::Providers::Sidekiq]))
       end
 
       it 'appends new providers' do
@@ -99,16 +99,14 @@ describe HealthMonitor do
   describe '#check' do
     context 'default providers' do
       it 'succesfully checks' do
-        expect(subject.check(request: request)).to eq(
-          results: [
-            {
-              name: 'Database',
-              message: '',
-              status: 'OK'
-            }
-          ],
-          status: :ok,
-          timestamp: time.to_s(:rfc2822)
+        expect(subject.check(request: request)).to include(
+          checks: {
+            'Database' => [hash_including(
+              status: 'pass',
+              time: time.to_s(:iso8601)
+            )]
+          },
+          status: 'pass'
         )
       end
     end
@@ -122,21 +120,18 @@ describe HealthMonitor do
       end
 
       it 'succesfully checks' do
-        expect(subject.check(request: request)).to eq(
-          results: [
-            {
-              name: 'Database',
-              message: '',
-              status: 'OK'
-            },
-            {
-              name: 'Redis',
-              message: '',
-              status: 'OK'
-            }
-          ],
-          status: :ok,
-          timestamp: time.to_s(:rfc2822)
+        expect(subject.check(request: request)).to include(
+          checks: {
+            'Database' => [hash_including(
+              status: 'pass',
+              time: time.to_s(:iso8601)
+            )],
+            'Redis' => [hash_including(
+              status: 'pass',
+              time: time.to_s(:iso8601)
+            )]
+          },
+          status: 'pass'
         )
       end
 
@@ -146,21 +141,19 @@ describe HealthMonitor do
         end
 
         it 'fails check' do
-          expect(subject.check(request: request)).to eq(
-            results: [
-              {
-                name: 'Database',
-                message: '',
-                status: 'OK'
-              },
-              {
-                name: 'Redis',
-                message: "different values (now: #{time}, fetched: false)",
-                status: 'ERROR'
-              }
-            ],
-            status: :service_unavailable,
-            timestamp: time.to_s(:rfc2822)
+          expect(subject.check(request: request)).to include(
+            checks: {
+              'Database' => [hash_including(
+                status: 'pass',
+                time: time.to_s(:iso8601)
+              )],
+              'Redis' => [hash_including(
+                status: 'fail',
+                output: "different values (now: #{time}, fetched: false)",
+                time: time.to_s(:iso8601)
+              )]
+            },
+            status: 'fail'
           )
         end
       end
@@ -171,25 +164,21 @@ describe HealthMonitor do
         end
 
         it 'succesfully checks' do
-          expect(subject.check(request: request)).to eq(
-            results: [
-              {
-                name: 'Database',
-                message: '',
-                status: 'OK'
-              },
-              {
-                name: 'Redis',
-                message: '',
-                status: 'OK'
-              }
-            ],
-            status: :ok,
-            timestamp: time.to_s(:rfc2822)
+          expect(subject.check(request: request)).to include(
+            checks: {
+              'Database' => [hash_including(
+                status: 'pass',
+                time: time.to_s(:iso8601)
+              )],
+              'Redis' => [hash_including(
+                status: 'pass',
+                time: time.to_s(:iso8601)
+              )]
+            },
+            status: 'pass'
           )
         end
       end
-
       context 'both redis and db fail' do
         before do
           Providers.stub_database_failure
@@ -197,21 +186,20 @@ describe HealthMonitor do
         end
 
         it 'fails check' do
-          expect(subject.check(request: request)).to eq(
-            results: [
-              {
-                name: 'Database',
-                message: 'Exception',
-                status: 'ERROR'
-              },
-              {
-                name: 'Redis',
-                message: "different values (now: #{time}, fetched: false)",
-                status: 'ERROR'
-              }
-            ],
-            status: :service_unavailable,
-            timestamp: time.to_s(:rfc2822)
+          expect(subject.check(request: request)).to include(
+            checks: {
+              'Database' => [hash_including(
+                status: 'fail',
+                output: 'my db exception',
+                time: time.to_s(:iso8601)
+              )],
+              'Redis' => [hash_including(
+                status: 'fail',
+                output: "different values (now: #{time}, fetched: false)",
+                time: time.to_s(:iso8601)
+              )]
+            },
+            status: 'fail'
           )
         end
       end
@@ -224,7 +212,7 @@ describe HealthMonitor do
         proc do |e|
           expect(e).to be_present
           expect(e).to be_is_a(Exception)
-
+          expect(e.message).to eq('my db exception')
           test = true
         end
       end
@@ -237,21 +225,20 @@ describe HealthMonitor do
         end
 
         Providers.stub_database_failure
+        Providers.stub_redis_failure
       end
 
       it 'calls error_callback' do
-        expect(subject.check(request: request)).to eq(
-          results: [
-            {
-              name: 'Database',
-              message: 'Exception',
-              status: 'ERROR'
-            }
-          ],
-          status: :service_unavailable,
-          timestamp: time.to_s(:rfc2822)
+        expect(subject.check(request: request)).to include(
+          checks: {
+            'Database' => [hash_including(
+              status: 'fail',
+              output: 'my db exception',
+              time: time.to_s(:iso8601)
+            )]
+          },
+          status: 'fail'
         )
-
         expect(test).to be_truthy
       end
     end

@@ -4,6 +4,8 @@ module HealthMonitor
   class HealthController < ActionController::Base
     protect_from_forgery with: :exception
 
+    RESTRICTED_ENV_VARS = %i[status notes output checks].freeze
+
     if Rails.version.starts_with? '3'
       before_filter :authenticate_with_basic_auth
     else
@@ -12,14 +14,15 @@ module HealthMonitor
 
     def check
       @statuses = statuses
+      http_response = @statuses.delete(:httpResponse)
 
       respond_to do |format|
         format.html
         format.json do
-          render json: statuses.to_json, status: statuses[:status]
+          render json: @statuses.to_json, status: http_response, content_type: 'application/health+json'
         end
         format.xml do
-          render xml: statuses.to_xml, status: statuses[:status]
+          render xml: @statuses.to_xml(root: 'result'), status: http_response
         end
       end
     end
@@ -33,7 +36,7 @@ module HealthMonitor
 
     def env_vars
       v = HealthMonitor.configuration.environment_variables || {}
-      v.empty? ? {} : { environment_variables: v }
+      v.except(*RESTRICTED_ENV_VARS)
     end
 
     def authenticate_with_basic_auth
@@ -46,7 +49,7 @@ module HealthMonitor
     end
 
     def providers_params
-      params.permit(providers: [])
+      params.permit(:format, providers: [])
     end
   end
 end

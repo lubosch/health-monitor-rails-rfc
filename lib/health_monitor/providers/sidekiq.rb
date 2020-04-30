@@ -5,8 +5,6 @@ require 'sidekiq/api'
 
 module HealthMonitor
   module Providers
-    class SidekiqException < StandardError; end
-
     class Sidekiq < Base
       class Configuration
         DEFAULT_QUEUE_NAME = 'default'
@@ -41,23 +39,29 @@ module HealthMonitor
         end
 
         def add_queue_configuration(queue_name, latency: DEFAULT_LATENCY_TIMEOUT, queue_size: DEFAULT_QUEUES_SIZE)
-          raise SidekiqException.new('Queue name is mandatory') if queue_name.blank?
+          raise 'Queue name is mandatory' if queue_name.blank?
 
           queues[queue_name] = { latency: latency, queue_size: queue_size }
         end
       end
 
-      def check!
+      private
+
+      def perform_check
         check_workers!
         check_processes!
         check_latency!
         check_queue_size!
         check_redis!
-      rescue Exception => e
-        raise SidekiqException.new(e)
+      rescue StandardError => e
+        @component.status = HealthMonitor::STATUSES[:error]
+        @component.output = e.message
       end
 
-      private
+      def add_details
+        @component.component_id = Sidekiq.object_id
+        @component.component_type = :system
+      end
 
       class << self
         private

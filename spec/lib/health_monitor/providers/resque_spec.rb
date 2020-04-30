@@ -22,9 +22,11 @@ describe HealthMonitor::Providers::Resque do
       end
 
       it 'fails check!' do
-        expect {
-          subject.check!
-        }.to raise_error(HealthMonitor::Providers::ResqueException)
+        expect(subject.check!).to include(
+          'Resque' => [hash_including(
+            status: 'fail'
+          )]
+        )
       end
     end
   end

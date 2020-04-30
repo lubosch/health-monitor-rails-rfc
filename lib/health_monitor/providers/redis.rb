@@ -4,8 +4,6 @@ require 'health_monitor/providers/base'
 
 module HealthMonitor
   module Providers
-    class RedisException < StandardError; end
-
     class Redis < Base
       class Configuration
         DEFAULT_URL = nil
@@ -25,11 +23,12 @@ module HealthMonitor
         end
       end
 
-      def check!
+      def perform_check
         check_values!
         check_max_used_memory!
-      rescue Exception => e
-        raise RedisException.new(e.message)
+      rescue StandardError => e
+        @component.output = e.message
+        @component.status = HealthMonitor::STATUSES[:error]
       ensure
         redis.close
       end
@@ -49,6 +48,8 @@ module HealthMonitor
         return unless configuration.max_used_memory
         return if used_memory_mb <= configuration.max_used_memory
 
+        @component.observed_value = used_memory_mb
+        @component.observed_unit = 'MB'
         raise "#{used_memory_mb}Mb memory using is higher than #{configuration.max_used_memory}Mb maximum expected"
       end
 
@@ -73,6 +74,11 @@ module HealthMonitor
 
       def used_memory_mb
         bytes_to_megabytes(redis.info['used_memory'])
+      end
+
+      def add_details
+        @component.component_type = :datastore
+        @component.component_id = redis.object_id
       end
     end
   end

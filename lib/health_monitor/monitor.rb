@@ -4,8 +4,19 @@ require 'health_monitor/configuration'
 
 module HealthMonitor
   STATUSES = {
-    ok: 'OK',
-    error: 'ERROR'
+    ok: 'pass',
+    error: 'fail',
+    warn: 'warn',
+    pass: 'pass',
+    fail: 'fail',
+    up: 'pass',
+    down: 'fail'
+  }.freeze
+
+  HTPP_RESPONSE_PATTERNS = {
+    ok: /^[2,3]\d\d/, # 2xx or 3xx
+    error: /^[4,5]\d\d/, # 4xx, 5xx
+    warn: /^[2,3]\d\d/ # 2xx or 3xx
   }.freeze
 
   extend self
@@ -19,40 +30,67 @@ module HealthMonitor
   end
 
   def check(request: nil, params: {})
-    providers = configuration.providers
-    if params[:providers].present?
-      providers = providers.select { |provider| params[:providers].include?(provider.provider_name.downcase) }
-    end
-
-    results = providers.map { |provider| provider_result(provider, request) }
-
+    @status = STATUSES[:ok]
+    @results = checks(request, params)
     {
-      results: results,
-      status: results.any? { |res| res[:status] != STATUSES[:ok] } ? :service_unavailable : :ok,
-      timestamp: Time.now.to_s(:rfc2822)
-    }
+      httpResponse: http_response,
+      status: @status,
+      serviceId: HealthMonitor.name, # unique identifier of the service, in the application scope
+      version: HealthMonitor::API_VERSION,
+      releaseId: HealthMonitor::VERSION,
+      description: 'Service to monitor the current health state of the application and its core components',
+      notes: nil,
+      links: {
+        about: 'http://api.x.io/rel/thresholds7',
+        self: 'http://api.x.io/rel/thresholds2'
+      },
+      output: nil, # should only be here if NOT PASS
+      checks: @results
+    }.compact
   end
 
   private
 
+  def checks(request, params)
+    providers = configuration.providers
+    if params[:providers].present?
+      providers = providers.select { |provider| params[:providers].include?(provider.provider_name.downcase) }
+    end
+    all = []
+    providers.each do |provider|
+      all += [provider_result(provider, request)].flatten
+    end
+    all.map(&:flatten).collect.to_h
+  end
+
+  def http_response
+    return :service_unavailable if @status == STATUSES[:fail]
+
+    :ok
+  end
+
+  # rubocop:disable Metrics/AbcSize
   def provider_result(provider, request)
     monitor = provider.new(request: request)
     monitor.check!
+    if monitor.status == STATUSES[:fail]
+      @status = STATUSES[:fail]
+      output = monitor.components.map(&:output).join('.')
+      configuration.error_callback.try(:call, StandardError.new(output))
+    end
+    @status = STATUSES[:warn] if monitor.status == STATUSES[:warn]
 
-    {
-      name: provider.provider_name,
-      message: '',
-      status: STATUSES[:ok]
-    }
+    monitor.result
   rescue StandardError => e
     configuration.error_callback.try(:call, e)
-
     {
-      name: provider.provider_name,
-      message: e.message,
-      status: STATUSES[:error]
+      provider.provider_name => [{
+        status: STATUSES[:fail],
+        output: e.message
+      }]
     }
   end
+  # rubocop:enable Metrics/AbcSize
 end
 
 HealthMonitor.configure
