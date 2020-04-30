@@ -17,7 +17,7 @@ module HealthMonitor
           @component2.observed_value = false
           @component2.output = "different values (now: #{time}, fetched: #{fetched})"
         end
-      rescue Exception => e
+      rescue StandardError => e
         @component.status = HealthMonitor::STATUSES[:error]
         @component.output = e.message
       end

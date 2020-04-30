@@ -10,7 +10,7 @@ module HealthMonitor
 
       def perform_check
         ::Resque.info
-      rescue Exception => e
+      rescue StandardError => e
         @component.status = HealthMonitor::STATUSES[:error]
         @component.output = e.message
       end

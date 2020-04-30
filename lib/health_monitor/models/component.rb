@@ -7,6 +7,7 @@ module HealthMonitor
 
       COMPONENT_TYPES = %i[system datastore component].freeze
       COMPONENT_STATUSES = %w[pass fail warn].freeze
+      URI_PATTERN = %r{\w+:(\/?\/?)[^\s]+}.freeze
 
       attr_accessor :status
       attr_accessor :component_id
@@ -21,8 +22,29 @@ module HealthMonitor
 
       validates_presence_of :status
       validates :status, inclusion: { in: COMPONENT_STATUSES, message: '%<value>s is not a valid status' }
-      validates :component_type, inclusion: { in: COMPONENT_TYPES, message: '%{<value>s is not a valid component type' }
+      validates :component_type, inclusion: { in: COMPONENT_TYPES, message: '%<value>s is not a valid component type' }
       validates :output, presence: true, unless: -> { status == 'pass' }
+      validates :affected_endpoints, absence: true, if: -> { status == 'pass' }
+      validate :affected_endpoints_type
+      validate :links_type
+
+      def affected_endpoints_type
+        return unless affected_endpoints.present?
+
+        errors.add(:affected_endpoints, 'must be and an array of URIs') unless affected_endpoints.is_a?(Array)
+        affected_endpoints.each do |link|
+          errors.add(:affected_endpoints, "each value must be an URI. #{link} is not") unless link =~ URI_PATTERN
+        end
+      end
+
+      def links_type
+        return unless links.present?
+
+        errors.add(:links, 'must be a Hash ') unless links.is_a?(Hash)
+        links.each do |link|
+          errors.add(:links, "each value must be an URI. #{link[1]} is not") unless link[1] =~ URI_PATTERN
+        end
+      end
 
       def initialize
         @status = HealthMonitor::STATUSES[:ok]
@@ -34,7 +56,7 @@ module HealthMonitor
       def result
         if invalid?
           @status = HealthMonitor::STATUSES[:warn]
-          @output = output.to_s + errors.full_messages.to_sentence
+          @output = [output, errors.full_messages.to_sentence].compact.join(', ')
         end
 
         {

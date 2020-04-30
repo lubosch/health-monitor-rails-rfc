@@ -28,7 +28,7 @@ module HealthMonitor
 
       def perform_check
         check_queue_size!
-      rescue Exception => e
+      rescue StandardError => e
         @component.output = e.message
         @component.status = HealthMonitor::STATUSES[:error]
       end

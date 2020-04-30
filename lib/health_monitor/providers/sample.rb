@@ -17,7 +17,7 @@ module HealthMonitor
           @component2.output = 'There is something wrong with math'
         end
         a == b
-      rescue Exception => e
+      rescue StandardError => e
         @component.status = HealthMonitor::STATUSES[:error]
         @component.output = e.message
       end
@@ -28,9 +28,9 @@ module HealthMonitor
         @component.observed_value = 250
         @component.observed_unit = :ms
         @component.affected_endpoints = [
-          '/test/users/{userId}',
-          '/test2/{customerId}/status',
-          '/test3/shopping/{anything}'
+          'http://ex.com/test/users/{userId}',
+          'http://ex.com//test2/{customerId}/status',
+          'http://ex.com//test3/shopping/{anything}'
         ]
         @component.links = {
           self: 'http://api.example.com/dbnode/dfd6cf2b/health',

@@ -26,7 +26,7 @@ module HealthMonitor
       def perform_check
         check_values!
         check_max_used_memory!
-      rescue Exception => e
+      rescue StandardError => e
         @component.output = e.message
         @component.status = HealthMonitor::STATUSES[:error]
       ensure

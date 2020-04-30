@@ -53,7 +53,7 @@ module HealthMonitor
         check_latency!
         check_queue_size!
         check_redis!
-      rescue Exception => e
+      rescue StandardError => e
         @component.status = HealthMonitor::STATUSES[:error]
         @component.output = e.message
       end

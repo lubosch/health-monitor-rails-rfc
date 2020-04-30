@@ -10,7 +10,7 @@ module HealthMonitor
       def perform_check
         # Check connection to the DB:
         ActiveRecord::Base.connection.execute('select 1')
-      rescue Exception => e
+      rescue StandardError => e
         @component.status = HealthMonitor::STATUSES[:error]
         @component.output = e.message
       end
