@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'health_monitor/configuration'
+require 'health_monitor/version'
 
 module HealthMonitor
   STATUSES = {
