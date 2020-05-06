@@ -43,9 +43,9 @@ module HealthMonitorRfc
       description: 'Service to monitor the current health state of the application and its core components',
       notes: nil,
       links: {
-        source: 'https://github.com/asped/health-monitor-rails-rfc',
+        source: 'https://github.com/asped/health-monitor-rails-rfc'
       },
-      output: @output.presence&.join(" "),
+      output: @output.presence&.join(' '),
       checks: @results
     }.compact
   end
