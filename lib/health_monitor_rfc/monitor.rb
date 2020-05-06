@@ -32,6 +32,7 @@ module HealthMonitorRfc
 
   def check(request: nil, params: {})
     @status = STATUSES[:ok]
+    @output = []
     @results = checks(request, params)
     {
       httpResponse: http_response,
@@ -42,10 +43,9 @@ module HealthMonitorRfc
       description: 'Service to monitor the current health state of the application and its core components',
       notes: nil,
       links: {
-        about: 'http://api.x.io/rel/thresholds7',
-        self: 'http://api.x.io/rel/thresholds2'
+        source: 'https://github.com/asped/health-monitor-rails-rfc',
       },
-      output: nil, # should only be here if NOT PASS
+      output: @output.presence&.join(" "),
       checks: @results
     }.compact
   end
@@ -76,8 +76,8 @@ module HealthMonitorRfc
     monitor.check!
     if monitor.status == STATUSES[:fail]
       @status = STATUSES[:fail]
-      output = monitor.components.map(&:output).join('.')
-      configuration.error_callback.try(:call, StandardError.new(output))
+      @output << monitor.output
+      configuration.error_callback.try(:call, StandardError.new(monitor.output))
     end
     @status = STATUSES[:warn] if monitor.status == STATUSES[:warn]
 

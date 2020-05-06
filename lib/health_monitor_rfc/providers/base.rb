@@ -51,6 +51,11 @@ module HealthMonitorRfc
         HealthMonitorRfc::STATUSES[:ok]
       end
 
+      def output
+        check! if result.blank?
+        @output = @components.map(&:output).join('.')
+      end
+
       # @abstract
       def self.configuration_class; end
 
