@@ -25,7 +25,7 @@ parser =
   OptionParser.new do |opts|
     opts.banner = 'Usage: check_rails.rb -u uri'
 
-    opts.on('-u', '--uri URI', 'The URI to check (https://nagios:nagios@example.com/check.json)') do |n|
+    opts.on('-u', '--uri URI', 'The URI to check (https://nagios:nagios@example.com/health.json)') do |n|
       options[:uri] = n
     end
 

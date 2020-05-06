@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module HealthMonitor
+module HealthMonitorRfc
   module Providers
     class Base
       attr_reader :request
@@ -23,7 +23,7 @@ module HealthMonitor
 
       def initialize(request: nil)
         @request = request
-        @component = HealthMonitor::Models::Component.new
+        @component = HealthMonitorRfc::Models::Component.new
         @components = [@component]
 
         return unless self.class.configurable?
@@ -45,10 +45,10 @@ module HealthMonitor
         check! if result.blank?
         statuses = @components.map(&:status)
 
-        return HealthMonitor::STATUSES[:fail] if statuses.include?(HealthMonitor::STATUSES[:fail])
-        return HealthMonitor::STATUSES[:warn] if statuses.include?(HealthMonitor::STATUSES[:warn])
+        return HealthMonitorRfc::STATUSES[:fail] if statuses.include?(HealthMonitorRfc::STATUSES[:fail])
+        return HealthMonitorRfc::STATUSES[:warn] if statuses.include?(HealthMonitorRfc::STATUSES[:warn])
 
-        HealthMonitor::STATUSES[:ok]
+        HealthMonitorRfc::STATUSES[:ok]
       end
 
       # @abstract

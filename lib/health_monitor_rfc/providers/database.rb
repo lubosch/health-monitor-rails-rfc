@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'health_monitor/providers/base'
+require 'health_monitor_rfc/providers/base'
 
-module HealthMonitor
+module HealthMonitorRfc
   module Providers
     class Database < Base
       private
@@ -11,7 +11,7 @@ module HealthMonitor
         # Check connection to the DB:
         ActiveRecord::Base.connection.execute('select 1')
       rescue StandardError => e
-        @component.status = HealthMonitor::STATUSES[:error]
+        @component.status = HealthMonitorRfc::STATUSES[:error]
         @component.output = e.message
       end
 

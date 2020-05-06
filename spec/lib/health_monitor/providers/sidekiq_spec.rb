@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-describe HealthMonitor::Providers::Sidekiq do
-  let(:default_latency) { HealthMonitor::Providers::Sidekiq::Configuration::DEFAULT_LATENCY_TIMEOUT }
-  let(:default_queue_size) { HealthMonitor::Providers::Sidekiq::Configuration::DEFAULT_QUEUES_SIZE }
-  let(:default_queue_name) { HealthMonitor::Providers::Sidekiq::Configuration::DEFAULT_QUEUE_NAME }
+describe HealthMonitorRfc::Providers::Sidekiq do
+  let(:default_latency) { HealthMonitorRfc::Providers::Sidekiq::Configuration::DEFAULT_LATENCY_TIMEOUT }
+  let(:default_queue_size) { HealthMonitorRfc::Providers::Sidekiq::Configuration::DEFAULT_QUEUES_SIZE }
+  let(:default_queue_name) { HealthMonitorRfc::Providers::Sidekiq::Configuration::DEFAULT_QUEUE_NAME }
 
-  describe HealthMonitor::Providers::Sidekiq::Configuration do
+  describe HealthMonitorRfc::Providers::Sidekiq::Configuration do
     describe 'defaults' do
       it { expect(described_class.new.latency).to eq(default_latency) }
       it { expect(described_class.new.queue_size).to eq(default_queue_size) }

@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 require 'timecop'
-require './app/controllers/health_monitor/health_controller'
+require './app/controllers/health_monitor_rfc/health_controller'
 
-describe HealthMonitor::HealthController, type: :controller do
-  routes { HealthMonitor::Engine.routes }
+describe HealthMonitorRfc::HealthController, type: :controller do
+  routes { HealthMonitorRfc::Engine.routes }
 
   let(:time) { Time.local(1990) }
 
@@ -22,7 +22,7 @@ describe HealthMonitor::HealthController, type: :controller do
     let(:password) { 'password' }
 
     before do
-      HealthMonitor.configure do |config|
+      HealthMonitorRfc.configure do |config|
         config.basic_auth_credentials = { username: username, password: password }
         config.environment_variables = nil
       end
@@ -36,7 +36,7 @@ describe HealthMonitor::HealthController, type: :controller do
 
       it 'succesfully checks' do
         expect {
-          get :check, format: :json
+          get :health, format: :json
         }.not_to raise_error
 
         expect(response).to be_ok
@@ -64,7 +64,7 @@ describe HealthMonitor::HealthController, type: :controller do
           let(:providers) { %w[redis database] }
           it 'succesfully checks' do
             expect {
-              get :check, params
+              get :health, params
             }.not_to raise_error
 
             expect(response).to be_ok
@@ -84,7 +84,7 @@ describe HealthMonitor::HealthController, type: :controller do
           let(:providers) { %w[redis] }
           it 'return empty providers' do
             expect {
-              get :check, params
+              get :health, params
             }.not_to raise_error
 
             expect(response).to be_ok
@@ -99,7 +99,7 @@ describe HealthMonitor::HealthController, type: :controller do
           let(:providers) { %w[foo-bar!] }
           it 'returns empty providers' do
             expect {
-              get :check, params
+              get :health, params
             }.not_to raise_error
 
             expect(response).to be_ok
@@ -119,7 +119,7 @@ describe HealthMonitor::HealthController, type: :controller do
 
       it 'fails' do
         expect {
-          get :check, format: :json
+          get :health, format: :json
         }.not_to raise_error
 
         expect(response).not_to be_ok
@@ -132,7 +132,7 @@ describe HealthMonitor::HealthController, type: :controller do
     let(:environment_variables) { { build_number: '12', git_sha: 'example_sha', status: 'fake_status' } }
 
     before do
-      HealthMonitor.configure do |config|
+      HealthMonitorRfc.configure do |config|
         config.basic_auth_credentials = nil
         config.environment_variables = environment_variables
       end
@@ -141,7 +141,7 @@ describe HealthMonitor::HealthController, type: :controller do
     context 'valid environment variables synatx provided' do
       it 'succesfully checks and removes unpermitted env vars' do
         expect {
-          get :check, format: :json
+          get :health, format: :json
         }.not_to raise_error
 
         expect(response).to be_ok
@@ -160,9 +160,9 @@ describe HealthMonitor::HealthController, type: :controller do
     end
   end
 
-  describe '#check' do
+  describe '#health' do
     before do
-      HealthMonitor.configure do |config|
+      HealthMonitorRfc.configure do |config|
         config.basic_auth_credentials = nil
         config.environment_variables = nil
       end
@@ -171,7 +171,7 @@ describe HealthMonitor::HealthController, type: :controller do
     context 'json rendering' do
       it 'succesfully checks' do
         expect {
-          get :check, format: :json
+          get :health, format: :json
         }.not_to raise_error
 
         expect(response).to be_ok
@@ -194,7 +194,7 @@ describe HealthMonitor::HealthController, type: :controller do
 
         it 'should fail' do
           expect {
-            get :check, format: :json
+            get :health, format: :json
           }.not_to raise_error
 
           expect(response).not_to be_ok
@@ -217,7 +217,7 @@ describe HealthMonitor::HealthController, type: :controller do
     context 'xml rendering' do
       it 'succesfully checks' do
         expect {
-          get :check, format: :xml
+          get :health, format: :xml
         }.not_to raise_error
 
         expect(response).to be_ok
@@ -240,7 +240,7 @@ describe HealthMonitor::HealthController, type: :controller do
 
         it 'should fail' do
           expect {
-            get :check, format: :xml
+            get :health, format: :xml
           }.not_to raise_error
 
           expect(response).not_to be_ok

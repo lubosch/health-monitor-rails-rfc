@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module HealthMonitor
+module HealthMonitorRfc
   module Models
     class Component
       include ActiveModel::Validations
@@ -47,7 +47,7 @@ module HealthMonitor
       end
 
       def initialize
-        @status = HealthMonitor::STATUSES[:ok]
+        @status = HealthMonitorRfc::STATUSES[:ok]
         @component_type = :system
         @time = Time.now.to_s(:iso8601)
         @measurement_name = nil
@@ -55,7 +55,7 @@ module HealthMonitor
 
       def result
         if invalid?
-          @status = HealthMonitor::STATUSES[:warn]
+          @status = HealthMonitorRfc::STATUSES[:warn]
           @output = [output, errors.full_messages.to_sentence].compact.join(', ')
         end
 

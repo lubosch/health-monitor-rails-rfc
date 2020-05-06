@@ -52,4 +52,4 @@ Style/ModuleFunction:
 
 Lint/RescueException:
   Exclude:
-    - 'lib/health_monitor/providers/**/*'
+    - 'lib/health_monitor_rfc/providers/**/*'

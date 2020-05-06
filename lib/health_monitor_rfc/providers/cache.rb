@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'health_monitor/providers/base'
+require 'health_monitor_rfc/providers/base'
 
-module HealthMonitor
+module HealthMonitorRfc
   module Providers
     class Cache < Base
       private
@@ -13,12 +13,12 @@ module HealthMonitor
         fetched = Rails.cache.read(key)
 
         if fetched != time
-          @component2.status = HealthMonitor::STATUSES[:error]
+          @component2.status = HealthMonitorRfc::STATUSES[:error]
           @component2.observed_value = false
           @component2.output = "different values (now: #{time}, fetched: #{fetched})"
         end
       rescue StandardError => e
-        @component.status = HealthMonitor::STATUSES[:error]
+        @component.status = HealthMonitorRfc::STATUSES[:error]
         @component.output = e.message
       end
 

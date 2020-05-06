@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'health_monitor/providers/base'
+require 'health_monitor_rfc/providers/base'
 require 'sidekiq/api'
 
-module HealthMonitor
+module HealthMonitorRfc
   module Providers
     class Sidekiq < Base
       class Configuration
@@ -54,7 +54,7 @@ module HealthMonitor
         check_queue_size!
         check_redis!
       rescue StandardError => e
-        @component.status = HealthMonitor::STATUSES[:error]
+        @component.status = HealthMonitorRfc::STATUSES[:error]
         @component.output = e.message
       end
 
@@ -67,7 +67,7 @@ module HealthMonitor
         private
 
         def configuration_class
-          ::HealthMonitor::Providers::Sidekiq::Configuration
+          ::HealthMonitorRfc::Providers::Sidekiq::Configuration
         end
       end
 

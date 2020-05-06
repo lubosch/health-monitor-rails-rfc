@@ -56,7 +56,7 @@ module Providers
 
   def stub_sidekiq_queue_size_failure(queue_name = 'default')
     infinity_queue = instance_double('Sidekiq::Queue', size: Float::INFINITY, latency: 0)
-    regular_queue = instance_double('Sidekiq::Queue', size: HealthMonitor::Providers::Sidekiq::Configuration::DEFAULT_QUEUES_SIZE, latency: 0)
+    regular_queue = instance_double('Sidekiq::Queue', size: HealthMonitorRfc::Providers::Sidekiq::Configuration::DEFAULT_QUEUES_SIZE, latency: 0)
     allow(Sidekiq::Queue).to receive(:new).and_return(regular_queue)
     allow(Sidekiq::Queue).to receive(:new).with(queue_name).and_return(infinity_queue)
   end

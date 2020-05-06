@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 $LOAD_PATH.push File.expand_path('lib', __dir__)
-require 'health_monitor/version'
+require 'health_monitor_rfc/version'
 
 Gem::Specification.new do |s|
-  s.name = 'health-monitor-rails'
-  s.version = HealthMonitor::VERSION
+  s.name = 'health-monitor-rails-rfc'
+  s.version = HealthMonitorRfc::VERSION
   s.platform = Gem::Platform::RUBY
   s.authors = ['Leonid Beder']
   s.email = ['leonid.beder@gmail.com']
   s.license = 'MIT'
-  s.homepage = 'https://github.com/lbeder/health-monitor-rails'
+  s.homepage = 'https://github.com/asped/health-monitor-rails-rfc'
   s.summary = 'Health monitoring Rails plug-in, which checks various services (db, cache, '\
     'sidekiq, redis, etc.)'
   s.description = 'Health monitoring Rails plug-in, which checks various services (db, cache, '\

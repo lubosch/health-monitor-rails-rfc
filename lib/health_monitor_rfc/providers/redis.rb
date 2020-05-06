@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'health_monitor/providers/base'
+require 'health_monitor_rfc/providers/base'
 
-module HealthMonitor
+module HealthMonitorRfc
   module Providers
     class Redis < Base
       class Configuration
@@ -19,7 +19,7 @@ module HealthMonitor
         private
 
         def configuration_class
-          ::HealthMonitor::Providers::Redis::Configuration
+          ::HealthMonitorRfc::Providers::Redis::Configuration
         end
       end
 
@@ -28,7 +28,7 @@ module HealthMonitor
         check_max_used_memory!
       rescue StandardError => e
         @component.output = e.message
-        @component.status = HealthMonitor::STATUSES[:error]
+        @component.status = HealthMonitorRfc::STATUSES[:error]
       ensure
         redis.close
       end

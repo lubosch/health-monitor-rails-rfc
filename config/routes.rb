@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-HealthMonitor::Engine.routes.draw do
+HealthMonitorRfc::Engine.routes.draw do
   controller :health do
-    get :check
+    get :health
   end
 end

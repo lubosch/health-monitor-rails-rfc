@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-describe HealthMonitor::Providers::DelayedJob do
-  describe HealthMonitor::Providers::DelayedJob::Configuration do
+describe HealthMonitorRfc::Providers::DelayedJob do
+  describe HealthMonitorRfc::Providers::DelayedJob::Configuration do
     describe 'defaults' do
-      it { expect(described_class.new.queue_size).to eq(HealthMonitor::Providers::DelayedJob::Configuration::DEFAULT_QUEUES_SIZE) }
+      it { expect(described_class.new.queue_size).to eq(HealthMonitorRfc::Providers::DelayedJob::Configuration::DEFAULT_QUEUES_SIZE) }
     end
   end
 

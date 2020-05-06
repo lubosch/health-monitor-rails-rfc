@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe HealthMonitor::Providers::Resque do
+describe HealthMonitorRfc::Providers::Resque do
   subject { described_class.new(request: test_request) }
 
   describe '#provider_name' do

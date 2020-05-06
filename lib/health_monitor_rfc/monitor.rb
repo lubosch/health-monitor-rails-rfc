@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'health_monitor/configuration'
-require 'health_monitor/version'
+require 'health_monitor_rfc/configuration'
+require 'health_monitor_rfc/version'
 
-module HealthMonitor
+module HealthMonitorRfc
   STATUSES = {
     ok: 'pass',
     error: 'fail',
@@ -36,9 +36,9 @@ module HealthMonitor
     {
       httpResponse: http_response,
       status: @status,
-      serviceId: HealthMonitor.name, # unique identifier of the service, in the application scope
-      version: HealthMonitor::API_VERSION,
-      releaseId: HealthMonitor::VERSION,
+      serviceId: HealthMonitorRfc.name, # unique identifier of the service, in the application scope
+      version: HealthMonitorRfc::API_VERSION,
+      releaseId: HealthMonitorRfc::VERSION,
       description: 'Service to monitor the current health state of the application and its core components',
       notes: nil,
       links: {
@@ -94,4 +94,4 @@ module HealthMonitor
   # rubocop:enable Metrics/AbcSize
 end
 
-HealthMonitor.configure
+HealthMonitorRfc.configure

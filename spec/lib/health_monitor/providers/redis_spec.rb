@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-describe HealthMonitor::Providers::Redis do
-  describe HealthMonitor::Providers::Redis::Configuration do
+describe HealthMonitorRfc::Providers::Redis do
+  describe HealthMonitorRfc::Providers::Redis::Configuration do
     describe 'defaults' do
-      it { expect(described_class.new.url).to eq(HealthMonitor::Providers::Redis::Configuration::DEFAULT_URL) }
+      it { expect(described_class.new.url).to eq(HealthMonitorRfc::Providers::Redis::Configuration::DEFAULT_URL) }
     end
   end
 
@@ -114,7 +114,7 @@ describe HealthMonitor::Providers::Redis do
             config.url = url
           end
 
-          HealthMonitor::Providers::Sidekiq.configure do |config|
+          HealthMonitorRfc::Providers::Sidekiq.configure do |config|
             config.latency = 123
           end
         }.to change { described_class.new.configuration.url }.to(url)
@@ -148,7 +148,7 @@ describe HealthMonitor::Providers::Redis do
             config.max_used_memory = max_used_memory
           end
 
-          HealthMonitor::Providers::Sidekiq.configure do |config|
+          HealthMonitorRfc::Providers::Sidekiq.configure do |config|
             config.latency = 123
           end
         }.to change { described_class.new.configuration.max_used_memory }.to(max_used_memory)

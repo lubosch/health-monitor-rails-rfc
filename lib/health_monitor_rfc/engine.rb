@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module HealthMonitor
+module HealthMonitorRfc
   class Engine < ::Rails::Engine
-    isolate_namespace HealthMonitor
+    isolate_namespace HealthMonitorRfc
   end
 end

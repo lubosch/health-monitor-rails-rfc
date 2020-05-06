@@ -1,4 +1,4 @@
-# health-monitor-rails
+# health-monitor-rails-rfc
 
 [![Gem Version](https://badge.fury.io/rb/health-monitor-rails.svg)](http://badge.fury.io/rb/health-monitor-rails)
 [![Build Status](https://travis-ci.org/asped/health-monitor-rails.svg)](https://travis-ci.org/asped/health-monitor-rails)
@@ -6,7 +6,7 @@
 
 This is a health monitoring Rails mountable plug-in, which checks various services (db, cache, sidekiq, redis, etc.).
 
-Mounting this gem will add a '/check' route to your application, which can be used for health monitoring the application and its various services. The method will return an appropriate HTTP status as well as an HTML/JSON/XML response representing the state of each provider.
+Mounting this gem will add a '/health' route to your application, which can be used for health monitoring the application and its various services. The method will return an appropriate HTTP status as well as an HTML/JSON/XML response representing the state of each provider.
 
 You can filter which checks to run by passing a parameter called ```providers```.
 
@@ -19,7 +19,7 @@ You can filter which checks to run by passing a parameter called ```providers```
 ### JSON Response
 
 ```bash
->> curl -s http://localhost:3000/check.json | json_pp
+>> curl -s http://localhost:3000/health.json | json_pp
 ```
 
 ```json
@@ -54,7 +54,7 @@ You can filter which checks to run by passing a parameter called ```providers```
 ### Filtered JSON Response
 
 ```bash
->> curl -s http://localhost:3000/check.json?providers[]=database&providers[]=redis | json_pp
+>> curl -s http://localhost:3000/health.json?providers[]=database&providers[]=redis | json_pp
 ```
 
 ```json
@@ -79,7 +79,7 @@ You can filter which checks to run by passing a parameter called ```providers```
 ### XML Response
 
 ```bash
->> curl -s http://localhost:3000/check.xml
+>> curl -s http://localhost:3000/health.xml
 ```
 
 ```xml
@@ -115,7 +115,7 @@ You can filter which checks to run by passing a parameter called ```providers```
 ### Filtered XML Response
 
 ```bash
->> curl -s http://localhost:3000/check.xml?providers[]=database&providers[]=redis
+>> curl -s http://localhost:3000/health.xml?providers[]=database&providers[]=redis
 ```
 
 ```xml
@@ -140,10 +140,10 @@ You can filter which checks to run by passing a parameter called ```providers```
 
 ## Setup
 
-If you are using bundler add health-monitor-rails to your Gemfile:
+If you are using bundler add health-monitor-rails-rfc to your Gemfile:
 
 ```ruby
-gem 'health-monitor-rails'
+gem 'health-monitor-rails-rfc'
 ```
 
 Then run:
@@ -155,7 +155,7 @@ bundle install
 Otherwise, install the gem:
 
 ```bash
-gem install health-monitor-rails
+gem install health-monitor-rails-rfc
 ```
 
 ## Usage
@@ -163,7 +163,7 @@ gem install health-monitor-rails
 You can mount this inside your app routes by adding this to config/routes.rb:
 
 ```ruby
-mount HealthMonitor::Engine, at: '/'
+mount HealthMonitorRfc::Engine, at: '/'
 ```
 
 ## Supported Service Providers
@@ -184,7 +184,7 @@ The following services are currently supported:
 By default, only the database check is enabled. You can add more service providers by explicitly enabling them via an initializer:
 
 ```ruby
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.cache
   config.redis
   config.sidekiq
@@ -196,7 +196,7 @@ We believe that having the database check enabled by default is very important, 
 (e.g., if you use a database that isn't covered by the check) - you can do that by calling the `no_database` method:
 
 ```ruby
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.no_database
 end
 ```
@@ -207,7 +207,7 @@ Some of the providers can also accept additional configuration:
 
 ```ruby
 # Sidekiq
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.sidekiq.configure do |sidekiq_config|
     sidekiq_config.latency = 3.hours
     sidekiq_config.queue_size = 50
@@ -215,7 +215,7 @@ HealthMonitor.configure do |config|
 end
 
 # To configure specific queues
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.sidekiq.configure do |sidekiq_config|
     sidekiq_config.add_queue_configuration('critical', latency: 10.seconds, queue_size: 20)
   end
@@ -225,7 +225,7 @@ end
 
 ```ruby
 # Redis
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.redis.configure do |redis_config|
     redis_config.connection = Redis.current # Use your custom redis connection
     redis_config.max_used_memory = 200 # Megabytes
@@ -237,7 +237,7 @@ Additionally, you can configure an explicit URL:
 
 ```ruby
 # Redis
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.redis.configure do |redis_config|
     redis_config.url = 'redis://user:pass@example.redis.com:90210/'
     redis_config.max_used_memory = 200
@@ -270,10 +270,10 @@ It's also possible to add custom health check providers suited for your needs (o
 
 To add a custom provider, you'd need to:
 
-* Implement the `HealthMonitor::Providers::Base` class and its `check!` method (a check is considered as failed if it raises an exception):
+* Implement the `HealthMonitorRfc::Providers::Base` class and its `check!` method (a check is considered as failed if it raises an exception):
 
 ```ruby
-class CustomProvider < HealthMonitor::Providers::Base
+class CustomProvider < HealthMonitorRfc::Providers::Base
   def check!
     raise 'Oh oh!'
   end
@@ -283,7 +283,7 @@ end
 * Add its class to the configuration:
 
 ```ruby
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.add_custom_provider(CustomProvider)
 end
 ```
@@ -293,7 +293,7 @@ end
 If you need to perform any additional error handling (for example, for additional error reporting), you can configure a custom error callback:
 
 ```ruby
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.error_callback = proc do |e|
     logger.error "Health check failed with: #{e.message}"
 
@@ -304,10 +304,10 @@ end
 
 ### Adding Authentication Credentials
 
-By default, the `/check` endpoint is not authenticated and is available to any user. You can authenticate using HTTP Basic Auth by providing authentication credentials:
+By default, the `/health` endpoint is not authenticated and is available to any user. You can authenticate using HTTP Basic Auth by providing authentication credentials:
 
 ```ruby
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.basic_auth_credentials = {
     username: 'SECRET_NAME',
     password: 'Shhhhh!!!'
@@ -320,7 +320,7 @@ end
 By default, environment variables are `nil`, so if you'd want to include additional parameters in the results JSON, all you need is to provide a `Hash` with your custom environment variables:
 
 ```ruby
-HealthMonitor.configure do |config|
+HealthMonitorRfc.configure do |config|
   config.environment_variables = {
     build_number: 'BUILD_NUMBER',
     git_sha: 'GIT_SHA'
@@ -339,7 +339,7 @@ nicolas@desktop:$ ./check_rails.rb
 missing argument: uri
 
 Usage: check_rails.rb -u uri
-    -u, --uri URI                    The URI to check (https://nagios:nagios@example.com/check.json)
+    -u, --uri URI                    The URI to check (https://nagios:nagios@example.com/health.json)
 
 Common options:
     -v, --version                    Displays Version
@@ -349,7 +349,7 @@ Common options:
 Also, it generates an output with the right status code for your monitoring system:
 
 ```sh
-nicolas@desktop:$ ./check_rails.rb -u http://admin:admin@localhost:5000/check.json
+nicolas@desktop:$ ./check_rails.rb -u http://admin:admin@localhost:5000/health.json
 Rails application : OK
 
 Database : OK
@@ -362,7 +362,7 @@ nicolas@desktop:$ echo $?
 ```
 
 ```sh
-nicolas@desktop:$ ./check_rails.rb -u http://admin:admin@localhost:5000/check.json
+nicolas@desktop:$ ./check_rails.rb -u http://admin:admin@localhost:5000/health.json
 Rails application : ERROR
 
 Database : OK

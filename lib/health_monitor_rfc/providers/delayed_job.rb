@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'health_monitor/providers/base'
+require 'health_monitor_rfc/providers/base'
 require 'delayed_job'
 
-module HealthMonitor
+module HealthMonitorRfc
   module Providers
     class DelayedJob < Base
       class Configuration
@@ -20,7 +20,7 @@ module HealthMonitor
         private
 
         def configuration_class
-          ::HealthMonitor::Providers::DelayedJob::Configuration
+          ::HealthMonitorRfc::Providers::DelayedJob::Configuration
         end
       end
 
@@ -30,7 +30,7 @@ module HealthMonitor
         check_queue_size!
       rescue StandardError => e
         @component.output = e.message
-        @component.status = HealthMonitor::STATUSES[:error]
+        @component.status = HealthMonitorRfc::STATUSES[:error]
       end
 
       def check_queue_size!

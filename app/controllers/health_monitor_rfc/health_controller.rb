@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module HealthMonitor
+module HealthMonitorRfc
   class HealthController < ActionController::Base
     protect_from_forgery with: :exception
 
@@ -12,7 +12,7 @@ module HealthMonitor
       before_action :authenticate_with_basic_auth
     end
 
-    def check
+    def health
       @statuses = statuses
       http_response = @statuses.delete(:httpResponse)
 
@@ -30,19 +30,19 @@ module HealthMonitor
     private
 
     def statuses
-      res = HealthMonitor.check(request: request, params: providers_params)
+      res = HealthMonitorRfc.check(request: request, params: providers_params)
       res.merge(env_vars)
     end
 
     def env_vars
-      v = HealthMonitor.configuration.environment_variables || {}
+      v = HealthMonitorRfc.configuration.environment_variables || {}
       v.except(*RESTRICTED_ENV_VARS)
     end
 
     def authenticate_with_basic_auth
-      return true unless HealthMonitor.configuration.basic_auth_credentials
+      return true unless HealthMonitorRfc.configuration.basic_auth_credentials
 
-      credentials = HealthMonitor.configuration.basic_auth_credentials
+      credentials = HealthMonitorRfc.configuration.basic_auth_credentials
       authenticate_or_request_with_http_basic do |name, password|
         name == credentials[:username] && password == credentials[:password]
       end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'health_monitor/providers/base'
+require 'health_monitor_rfc/providers/base'
 
-module HealthMonitor
+module HealthMonitorRfc
   module Providers
     class Sample < Base
       private
@@ -13,12 +13,12 @@ module HealthMonitor
         b = 1
         c = 2
         if a != c
-          @component2.status = HealthMonitor::STATUSES[:error]
+          @component2.status = HealthMonitorRfc::STATUSES[:error]
           @component2.output = 'There is something wrong with math'
         end
         a == b
       rescue StandardError => e
-        @component.status = HealthMonitor::STATUSES[:error]
+        @component.status = HealthMonitorRfc::STATUSES[:error]
         @component.output = e.message
       end
 
