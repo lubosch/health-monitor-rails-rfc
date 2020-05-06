@@ -45,6 +45,10 @@
     border-radius: 5px;
   }
   .statuses h1 { border-radius: 5px 5px 0 0; background: #f9f9f9; padding: 10px; border-bottom: 1px solid #eee;}
+  .statuses h2 { padding: 10px; border-bottom: 1px solid #eee; text-align: center}
+  .statuses h2.state-fail { color: red}
+  .statuses h2.state-warn { color: orange}
+  .statuses h2.state-pass { color: #45b81d}
   .statuses .status { font-size: 14px; border-bottom: 1px solid #eee; padding: 15px; }
   .statuses .status:last-child { border-bottom: 0px; }
   .statuses .name { font-size: 20px; margin-right: 20px; min-width: 100px; font-weight: bold; color: #555; }
@@ -63,7 +67,7 @@
   <div class="container">
     <div class="statuses">
       <h1>Status Page</h1>
-
+      <h2 class="state-<%= @statuses[:status] %>"><%= @statuses[:status].upcase %></h2>
       <% @statuses[:checks].each do |i,status| %>
       <div class="status status-<%= status.first[:status].downcase %>">
         <div class="status-heading">
