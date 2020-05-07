@@ -11,15 +11,15 @@ module HealthMonitorRfc
         # Check connection to the DB:
         ActiveRecord::Base.connection.execute('select 1')
       rescue StandardError => e
-        @component.status = HealthMonitorRfc::STATUSES[:error]
-        @component.output = e.message
+        component.status = HealthMonitorRfc::STATUSES[:error]
+        component.output = e.message
       end
 
       def add_details
-        @component.component_id = ActiveRecord.object_id
-        @component.component_type = :datastore
-        @component.observed_value = true
-        @component.observed_unit = :boolean
+        component.component_id = ActiveRecord.object_id
+        component.component_type = :datastore
+        component.observed_value = true
+        component.observed_unit = :boolean
       end
     end
   end

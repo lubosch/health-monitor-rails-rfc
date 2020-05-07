@@ -27,8 +27,8 @@ module HealthMonitorRfc
         check_values!
         check_max_used_memory!
       rescue StandardError => e
-        @component.output = e.message
-        @component.status = HealthMonitorRfc::STATUSES[:error]
+        component.output = e.message
+        component.status = HealthMonitorRfc::STATUSES[:error]
       ensure
         redis.close
       end
@@ -48,8 +48,8 @@ module HealthMonitorRfc
         return unless configuration.max_used_memory
         return if used_memory_mb <= configuration.max_used_memory
 
-        @component.observed_value = used_memory_mb
-        @component.observed_unit = 'MB'
+        component.observed_value = used_memory_mb
+        component.observed_unit = 'MB'
         raise "#{used_memory_mb}Mb memory using is higher than #{configuration.max_used_memory}Mb maximum expected"
       end
 
@@ -77,8 +77,8 @@ module HealthMonitorRfc
       end
 
       def add_details
-        @component.component_type = :datastore
-        @component.component_id = redis.object_id
+        component.component_type = :datastore
+        component.component_id = redis.object_id
       end
     end
   end

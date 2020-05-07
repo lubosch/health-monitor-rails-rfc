@@ -54,13 +54,13 @@ module HealthMonitorRfc
         check_queue_size!
         check_redis!
       rescue StandardError => e
-        @component.status = HealthMonitorRfc::STATUSES[:error]
-        @component.output = e.message
+        component.status = HealthMonitorRfc::STATUSES[:error]
+        component.output = e.message
       end
 
       def add_details
-        @component.component_id = Sidekiq.object_id
-        @component.component_type = :system
+        component.component_id = Sidekiq.object_id
+        component.component_type = :system
       end
 
       class << self

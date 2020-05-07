@@ -18,8 +18,8 @@ module HealthMonitorRfc
           @component2.output = "different values (now: #{time}, fetched: #{fetched})"
         end
       rescue StandardError => e
-        @component.status = HealthMonitorRfc::STATUSES[:error]
-        @component.output = e.message
+        component.status = HealthMonitorRfc::STATUSES[:error]
+        component.output = e.message
       end
 
       def key
@@ -27,12 +27,12 @@ module HealthMonitorRfc
       end
 
       def add_details
-        @component.component_type = :datastore
-        @component.component_id = Rails.cache.object_id
-        @component.measurement_name = 'status'
+        component.component_type = :datastore
+        component.component_id = Rails.cache.object_id
+        component.measurement_name = 'status'
 
-        @component2 = @component.dup
-        @components.push(@component2)
+        @component2 = component.dup
+        components.push(@component2)
         @component2.measurement_name = 'persistence'
         @component2.observed_unit = :boolean
         @component2.observed_value = true

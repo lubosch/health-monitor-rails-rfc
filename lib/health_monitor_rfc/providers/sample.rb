@@ -18,28 +18,28 @@ module HealthMonitorRfc
         end
         a == b
       rescue StandardError => e
-        @component.status = HealthMonitorRfc::STATUSES[:error]
-        @component.output = e.message
+        component.status = HealthMonitorRfc::STATUSES[:error]
+        component.output = e.message
       end
 
       def add_details
-        @component.component_id = '123456-XYZ'
-        @component.component_type = :datastore
-        @component.observed_value = 250
-        @component.observed_unit = :ms
-        @component.affected_endpoints = [
+        component.component_id = '123456-XYZ'
+        component.component_type = :datastore
+        component.observed_value = 250
+        component.observed_unit = :ms
+        component.affected_endpoints = [
           'http://ex.com/test/users/{userId}',
           'http://ex.com//test2/{customerId}/status',
           'http://ex.com//test3/shopping/{anything}'
         ]
-        @component.links = {
+        component.links = {
           self: 'http://api.example.com/dbnode/dfd6cf2b/health',
           info: 'http://some.more.info.page'
         }
-        @component2 = @component.dup
+        @component2 = component.dup
         @component2.component_id = '456789'
         @component2.measurement_name = 'math'
-        @components.push(@component2)
+        components.push(@component2)
       end
     end
   end
