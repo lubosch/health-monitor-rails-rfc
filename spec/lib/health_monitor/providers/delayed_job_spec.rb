@@ -16,14 +16,16 @@ describe HealthMonitorRfc::Providers::DelayedJob do
   end
 
   describe '#check!' do
-    before do
-      described_class.configure
-      Providers.stub_delayed_job
-      subject.check!
-    end
+    context 'successful' do
+      before do
+        described_class.configure
+        Providers.stub_delayed_job
+        subject.check!
+      end
 
-    it 'succesfully checks' do
-      expect(subject.status).to eq('pass')
+      it 'succesfully checks' do
+        expect(subject.status).to eq('pass')
+      end
     end
 
     context 'failing' do

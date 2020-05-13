@@ -32,6 +32,8 @@ module HealthMonitorRfc
       end
 
       def check!
+        return result if result
+
         add_details
         perform_check
         generate_result
