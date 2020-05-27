@@ -14,7 +14,7 @@ describe HealthMonitorRfc::Configuration do
   describe 'providers' do
     HealthMonitorRfc::Configuration::PROVIDERS.each do |provider_name|
       before do
-        subject.instance_variable_set('@providers', Set.new)
+        subject.instance_variable_set('@default_providers', Set.new)
 
         stub_const("HealthMonitorRfc::Providers::#{provider_name.to_s.titleize.delete(' ')}", Class.new)
       end
@@ -37,34 +37,21 @@ describe HealthMonitorRfc::Configuration do
 
   describe '#add_custom_provider' do
     before do
-      subject.instance_variable_set('@providers', Set.new)
+      subject.instance_variable_set('@default_providers', Set.new)
     end
 
+    # rubocop:disable Style/ClassAndModuleChildren
     context 'inherits' do
-      class CustomProvider < HealthMonitorRfc::Providers::Base
+      class HealthMonitorRfc::Providers::CustomProvider < HealthMonitorRfc::Providers::Base
       end
 
       it 'accepts' do
         expect {
-          subject.add_custom_provider(CustomProvider)
-        }.to change { subject.providers }.to(Set.new([CustomProvider]))
-      end
-
-      it 'returns CustomProvider class' do
-        expect(subject.add_custom_provider(CustomProvider)).to eq(CustomProvider)
+          subject.add_custom_provider(:custom_provider)
+        }.to change { subject.providers }.to(Set.new([HealthMonitorRfc::Providers::CustomProvider]))
       end
     end
-
-    context 'does not inherit' do
-      class TestClass
-      end
-
-      it 'does not accept' do
-        expect {
-          subject.add_custom_provider(TestClass)
-        }.to raise_error(ArgumentError)
-      end
-    end
+    # rubocop:enable Style/ClassAndModuleChildren
   end
 
   describe '#no_database' do
