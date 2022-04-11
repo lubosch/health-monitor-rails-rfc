@@ -44,7 +44,7 @@ describe HealthMonitorRfc::HealthController, type: :controller do
           'checks' => {
             'Database' => [hash_including(
               'status' => 'pass',
-              'time' => time.to_s(:iso8601)
+              'time' => time.to_fs(:iso8601)
             )]
           },
           'status' => 'pass'
@@ -72,7 +72,7 @@ describe HealthMonitorRfc::HealthController, type: :controller do
               'checks' => {
                 'Database' => [hash_including(
                   'status' => 'pass',
-                  'time' => time.to_s(:iso8601)
+                  'time' => time.to_fs(:iso8601)
                 )]
               },
               'status' => 'pass'
@@ -149,7 +149,7 @@ describe HealthMonitorRfc::HealthController, type: :controller do
           'checks' => {
             'Database' => [hash_including(
               'status' => 'pass',
-              'time' => time.to_s(:iso8601)
+              'time' => time.to_fs(:iso8601)
             )]
           },
           'status' => 'pass',
@@ -179,7 +179,7 @@ describe HealthMonitorRfc::HealthController, type: :controller do
           'checks' => {
             'Database' => [hash_including(
               'status' => 'pass',
-              'time' => time.to_s(:iso8601)
+              'time' => time.to_fs(:iso8601)
             )]
           },
           'status' => 'pass'
@@ -204,7 +204,7 @@ describe HealthMonitorRfc::HealthController, type: :controller do
             'checks' => {
               'Database' => [hash_including(
                 'status' => 'fail',
-                'time' => time.to_s(:iso8601),
+                'time' => time.to_fs(:iso8601),
                 'output' => 'my db exception'
               )]
             },
@@ -225,7 +225,7 @@ describe HealthMonitorRfc::HealthController, type: :controller do
           'checks' => {
             'Database' => [hash_including(
               'status' => 'pass',
-              'time' => time.to_s(:iso8601)
+              'time' => time.to_fs(:iso8601)
             )]
           },
           'status' => 'pass'
@@ -250,7 +250,7 @@ describe HealthMonitorRfc::HealthController, type: :controller do
               'Database' => [hash_including(
                 'status' => 'fail',
                 'output' => 'my db exception',
-                'time' => time.to_s(:iso8601)
+                'time' => time.to_fs(:iso8601)
               )]
             },
             'status' => 'fail'

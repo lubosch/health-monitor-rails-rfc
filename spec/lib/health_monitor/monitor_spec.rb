@@ -103,7 +103,7 @@ describe HealthMonitorRfc do
           checks: {
             'Database' => [hash_including(
               status: 'pass',
-              time: time.to_s(:iso8601)
+              time: time.to_fs(:iso8601)
             )]
           },
           status: 'pass'
@@ -124,11 +124,11 @@ describe HealthMonitorRfc do
           checks: {
             'Database' => [hash_including(
               status: 'pass',
-              time: time.to_s(:iso8601)
+              time: time.to_fs(:iso8601)
             )],
             'Redis' => [hash_including(
               status: 'pass',
-              time: time.to_s(:iso8601)
+              time: time.to_fs(:iso8601)
             )]
           },
           status: 'pass'
@@ -145,12 +145,12 @@ describe HealthMonitorRfc do
             checks: {
               'Database' => [hash_including(
                 status: 'pass',
-                time: time.to_s(:iso8601)
+                time: time.to_fs(:iso8601)
               )],
               'Redis' => [hash_including(
                 status: 'fail',
                 output: "different values (now: #{time}, fetched: false)",
-                time: time.to_s(:iso8601)
+                time: time.to_fs(:iso8601)
               )]
             },
             status: 'fail'
@@ -168,11 +168,11 @@ describe HealthMonitorRfc do
             checks: {
               'Database' => [hash_including(
                 status: 'pass',
-                time: time.to_s(:iso8601)
+                time: time.to_fs(:iso8601)
               )],
               'Redis' => [hash_including(
                 status: 'pass',
-                time: time.to_s(:iso8601)
+                time: time.to_fs(:iso8601)
               )]
             },
             status: 'pass'
@@ -191,12 +191,12 @@ describe HealthMonitorRfc do
               'Database' => [hash_including(
                 status: 'fail',
                 output: 'my db exception',
-                time: time.to_s(:iso8601)
+                time: time.to_fs(:iso8601)
               )],
               'Redis' => [hash_including(
                 status: 'fail',
                 output: "different values (now: #{time}, fetched: false)",
-                time: time.to_s(:iso8601)
+                time: time.to_fs(:iso8601)
               )]
             },
             status: 'fail'
@@ -234,7 +234,7 @@ describe HealthMonitorRfc do
             'Database' => [hash_including(
               status: 'fail',
               output: 'my db exception',
-              time: time.to_s(:iso8601)
+              time: time.to_fs(:iso8601)
             )]
           },
           status: 'fail'

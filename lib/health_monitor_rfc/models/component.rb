@@ -49,7 +49,7 @@ module HealthMonitorRfc
       def initialize
         @status = HealthMonitorRfc::STATUSES[:ok]
         @component_type = :system
-        @time = Time.now.to_s(:iso8601)
+        @time = Time.now.to_fs(:iso8601)
         @measurement_name = nil
       end
 
